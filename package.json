@@ -1,0 +1,30 @@
+{
+  "name": "sql-formatter",
+  "version": "1.0.0",
+  "description": "Format and pretty-print SQL queries with dialect support. Pure JS tokenizer. Zero dependencies.",
+  "type": "module",
+  "bin": {
+    "sql-formatter": "./index.js",
+    "sqlfmt": "./index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "developer-tools",
+    "cli",
+    "nodejs",
+    "zero-dependencies",
+    "sql",
+    "formatter",
+    "database",
+    "postgresql",
+    "mysql",
+    "developer-productivity"
+  ],
+  "license": "MIT",
+  "files": [
+    "index.js",
+    "README.md"
+  ]
+}
