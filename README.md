@@ -1,3 +1,5 @@
+![Banner](banner.svg)
+
 # sql-formatter
 
 Format and pretty-print SQL queries from the command line. Pure JS tokenizer. Zero external dependencies.
