@@ -1,88 +1,22 @@
-![Banner](banner.svg)
+![sql-formatter — pretty-print SQL queries from stdin, files, or directories with dialect support](assets/banner.png)
 
-# sql-formatter
+<div align="center">
 
-Format and pretty-print SQL queries from the command line. Pure JS tokenizer. Zero external dependencies.
+**Format and pretty-print SQL queries from the command line. Zero external dependencies.**
 
-## Features
+![license](https://img.shields.io/badge/license-MIT-blue?labelColor=0B0A09)
+![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen?labelColor=0B0A09)
+![node](https://img.shields.io/badge/node-%3E%3D18-brightgreen?labelColor=0B0A09)
+![dialects](https://img.shields.io/badge/SQL%20dialects-5-8B92F6?labelColor=0B0A09)
 
-- Format SQL files or pipe from stdin
-- Write formatted output to a file
-- Format all `.sql` files in a directory
-- Multiple SQL dialects: `mysql`, `postgres`, `sqlite`, `mssql`, `generic`
-- Configurable indent size
-- Uppercase or lowercase keyword normalization
-- `--check` mode for CI pipelines (exits 1 if not formatted)
-- `--watch` mode to auto-format on file change
-- `--json` output for tooling integration
-- Pure Node.js — no npm install required
+</div>
 
-## Install
+---
 
-```bash
-npm install -g sql-formatter
-```
-
-Or run directly without installing:
-
-```bash
-npx sql-formatter query.sql
-```
-
-## Usage
+A pure Node.js SQL formatter with a hand-rolled tokenizer and zero npm dependencies. Pipe from stdin, format a single file, or batch-format an entire directory. Clause-aware indentation, keyword case normalization, and a `--check` mode for CI make it a drop-in step in any SQL workflow.
 
 ```
-sql-formatter <file.sql>                  Format a SQL file (prints to stdout)
-sql-formatter <file.sql> --output out.sql Write formatted SQL to file
-sql-formatter <dir>                       Format all .sql files in directory
-echo "SELECT 1" | sql-formatter           Read from stdin
-```
-
-## Options
-
-```
---dialect <name>  SQL dialect: mysql|postgres|sqlite|mssql|generic (default: generic)
---indent <n>      Indent size in spaces (default: 2)
---uppercase       Uppercase SQL keywords
---lowercase       Lowercase SQL keywords
---output <file>   Write output to file instead of stdout
---check           Exit 1 if file(s) not formatted (for CI)
---watch           Watch file and auto-format on change
---json            Output metadata as JSON
---help, -h        Show this help
---version, -v     Show version
-```
-
-## Examples
-
-Format a file and print to stdout:
-
-```bash
-sql-formatter query.sql
-```
-
-Format with uppercase keywords and 4-space indent:
-
-```bash
-sql-formatter query.sql --uppercase --indent 4
-```
-
-Format and write to a new file:
-
-```bash
-sql-formatter query.sql --output formatted.sql
-```
-
-Format all `.sql` files in a directory:
-
-```bash
-sql-formatter ./migrations
-```
-
-Pipe from stdin:
-
-```bash
-echo "select id,name from users where id=1" | sql-formatter --uppercase
+echo "select id,name from users where id=1" | npx github:NickCirv/sql-formatter --uppercase
 ```
 
 Output:
@@ -94,63 +28,102 @@ FROM users
 WHERE id = 1
 ```
 
-Check formatting in CI (exits 1 if any file is not formatted):
+## Install
+
+No install required — run straight from GitHub with zero dependencies:
 
 ```bash
-sql-formatter . --check
+npx github:NickCirv/sql-formatter
 ```
 
-Get JSON metadata:
+## Usage
 
 ```bash
-sql-formatter query.sql --json
+# Format a SQL file (prints to stdout)
+npx github:NickCirv/sql-formatter query.sql
+
+# Write formatted output to a file
+npx github:NickCirv/sql-formatter query.sql --output formatted.sql
+
+# Format all .sql files in a directory (in-place)
+npx github:NickCirv/sql-formatter ./migrations
+
+# Pipe from stdin
+echo "select id,name from users where id=1" | npx github:NickCirv/sql-formatter --uppercase
+
+# Check formatting in CI (exits 1 if not formatted)
+npx github:NickCirv/sql-formatter . --check
+
+# Watch a file and auto-format on save
+npx github:NickCirv/sql-formatter query.sql --watch
+
+# Get JSON metadata
+npx github:NickCirv/sql-formatter query.sql --json
 # { "file": "/path/to/query.sql", "changed": true, "linesBefore": 1, "linesAfter": 4 }
 ```
 
-Watch and auto-format on save:
+## Options
 
-```bash
-sql-formatter query.sql --watch
-```
+| Flag | Description |
+|------|-------------|
+| `--dialect <name>` | SQL dialect: `mysql` \| `postgres` \| `sqlite` \| `mssql` \| `generic` (default: `generic`) |
+| `--indent <n>` | Indent size in spaces (default: `2`) |
+| `--uppercase` | Uppercase SQL keywords |
+| `--lowercase` | Lowercase SQL keywords |
+| `--output <file>` | Write output to file instead of stdout |
+| `--check` | Exit `1` if file(s) not formatted (for CI) |
+| `--watch` | Watch file and auto-format on change |
+| `--json` | Output change metadata as JSON |
+| `--help, -h` | Show help |
+| `--version, -v` | Show version |
 
-Use as `sqlfmt` alias:
-
-```bash
-sqlfmt query.sql --uppercase
-```
-
-## What Gets Formatted
+## What gets formatted
 
 - Each major clause (`SELECT`, `FROM`, `WHERE`, `JOIN`, `GROUP BY`, `ORDER BY`, etc.) starts on a new line
 - Comma-separated items are one per line with indentation
-- Nested subqueries are indented in parenthesized blocks
-- Short expressions are inlined; long ones are expanded
+- Nested subqueries are indented inside parenthesized blocks
+- Short expressions are inlined; long ones are expanded (threshold: 50 chars)
 - Consistent spacing around operators (`=`, `!=`, `<`, `>`, `<=`, `>=`)
-- Inline vs multiline parentheses decided automatically (threshold: 50 chars)
 - Comments are preserved in place
 - Multiple statements separated by blank lines
 
-## Supported Keywords
-
-SELECT, FROM, WHERE, JOIN (INNER/LEFT/RIGHT/FULL/CROSS/NATURAL), ON, GROUP BY, ORDER BY, HAVING, LIMIT, OFFSET, INSERT INTO, VALUES, UPDATE, SET, DELETE FROM, CREATE TABLE, ALTER TABLE, DROP TABLE, WITH (CTE), UNION, UNION ALL, INTERSECT, EXCEPT, AS, AND, OR, NOT, IN, EXISTS, CASE WHEN THEN ELSE END, COALESCE, CAST, DISTINCT, BETWEEN, LIKE, IS NULL, IS NOT NULL, and more.
-
-## Supported Dialects
+## Supported dialects
 
 | Dialect | Notes |
 |---------|-------|
 | `generic` | Standard SQL (default) |
-| `mysql` | MySQL/MariaDB |
+| `mysql` | MySQL / MariaDB |
 | `postgres` | PostgreSQL (dollar-quoted strings, `::` cast) |
 | `sqlite` | SQLite |
 | `mssql` | Microsoft SQL Server |
 
-Dialect selection primarily affects tokenizer edge cases. The core formatting rules are dialect-agnostic.
+Dialect selection affects tokenizer edge cases (e.g. `$$`-quoted strings in Postgres, `::` cast operator). Core formatting rules are dialect-agnostic.
 
-## Requirements
+## CI usage
 
-- Node.js >= 18
-- Zero npm dependencies
+Exit code is `1` if any file is unformatted, `0` if clean:
 
-## License
+```yaml
+- name: Check SQL formatting
+  run: npx github:NickCirv/sql-formatter . --check
+```
 
-MIT
+## sqlfmt alias
+
+The binary is also available as `sqlfmt` — useful when you want a shorter command in scripts:
+
+```bash
+sqlfmt query.sql --uppercase --indent 4
+```
+
+## What it is NOT
+
+- **Not a linter or validator.** It formats structure — it does not catch SQL errors, warn about deprecated syntax, or enforce naming conventions.
+- **Not dialect-strict.** Dialect selection affects a few tokenizer edge cases; it does not enforce dialect-specific syntax rules.
+- **Not a library.** The CLI is the interface. There is no published npm package to `require()` — run it via `npx github:NickCirv/sql-formatter`.
+
+---
+
+<div align="center">
+<sub>Zero dependencies · Node 18+ · MIT · by <a href="https://github.com/NickCirv">NickCirv</a></sub>
+</div>
